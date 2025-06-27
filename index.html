@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Default dark theme styles */
+    body {
+      background-color: #0a0a0a;
+      color: #e0e7ff;
+      scroll-behavior: smooth;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    /* Light theme overrides */
+    body.light-theme {
+      background-color: #ffffff;
+      color: #1f2937;
+    }
+    body.light-theme .bg-gray-900 {
+      background-color: #f3f4f6;
+    }
+    body.light-theme .bg-gray-800 {
+      background-color: #e5e7eb;
+    }
+    body.light-theme .text-gray-300 {
+      color: #4b5563;
+    }
+    body.light-theme .text-indigo-400 {
+      color: #6d28d9;
+    }
+    body.light-theme .bg-indigo-600 {
+      background-color: #7c3aed;
+    }
+    body.light-theme .bg-indigo-900 {
+      background-color: #e0e7ff;
+    }
+    body.light-theme .text-indigo-300 {
+      color: #6d28d9;
+    }
+    body.light-theme .chat-overlay {
+      background: rgba(0, 0, 0, 0.75);
+    }
+    body.light-theme .chat-container {
+      background: #ffffff;
+    }
+    body.light-theme .chat-header {
+      background: linear-gradient(45deg, #7c3aed, #db2777);
+    }
+    body.light-theme .chat-body {
+      background: #f3f4f6;
+    }
+    body.light-theme .chat-message.bot {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+    body.light-theme .chat-footer {
+      background: #ffffff;
+      border-top: 1px solid #d1d5db;
+    }
+    body.light-theme .chat-footer input {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      color: #1f2937;
+    }
+    body.light-theme .project-card {
+      background: #ffffff;
+    }
+    body.light-theme .project-card:hover {
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+    body.light-theme .project-image {
+      border-bottom: 1px solid #d1d5db;
+    }
+    .chat-bubble {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(45deg, #7c3aed, #db2777);
+      color: white;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.4s ease;
+      z-index: 2000;
+    }
+    .chat-bubble:hover {
+      transform: rotate(10deg) scale(1.15);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .chat-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2500;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .chat-overlay.active {
+      display: flex;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 400px;
+      height: 80vh;
+      max-height: 600px;
+      background: #1f2937;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      transform: translateY(20px);
+      animation: slideUp 0.3s ease-out forwards;
+    }
+    .chat-header {
+      background: linear-gradient(45deg, #7c3aed, #db2777);
+      padding: 12px 16px;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .chat-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e0e7ff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .chat-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: #111827;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-message {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      line-height: 1.4;
+      font-size: 15px;
+    }
+    .chat-message.user {
+      background: #7c3aed;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-message.bot {
+      background: #374151;
+      color: #e0e7ff;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-footer {
+      padding: 12px;
+      background: #1f2937;
+      border-top: 1px solid #374151;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-footer input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #4b5563;
+      border-radius: 12px;
+      background: #111827;
+      color: #e0e7ff;
+      outline: none;
+    }
+    .chat-footer button {
+      background: #7c3aed;
+      color: white;
+      padding: 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .chat-footer button:hover {
+      background: #6d28d9;
+    }
+    .profile-pic {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #7c3aed;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .profile-pic:hover {
+      transform: scale(1.05);
+    }
+    .project-card {
+      position: relative;
+      background: #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+    .project-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(124, 58, 237, 0.3);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .project-card:hover::after {
+      opacity: 1;
+    }
+    .project-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #374151;
+    }
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.2s ease;
+    }
+    .theme-toggle:hover {
+      background: #374151;
+    }
+    .theme-toggle svg {
+      width: 24px;
+      height: 24px;
+      fill: #e0e7ff;
+    }
+    body.light-theme .theme-toggle svg {
+      fill: #1f2937;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .chat-container {
+        width: 90vw;
+        height: 85vh;
+      }
+      .chat-bubble {
+        width: 60px;
+        height: 60px;
+      }
+      .profile-pic {
+        width: 80px;
+        height: 80px;
+      }
+      .project-image {
+        height: 150px;
+      }
+    }
+    /* Scrollbar styling */
+    .chat-body::-webkit-scrollbar {
+      width: 8px;
+    }
+    .chat-body::-webkit-scrollbar-track {
+      background: #1f2937;
+    }
+    body.light-theme .chat-body::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+    .chat-body::-webkit-scrollbar-thumb {
+      background: #7c3aed;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="bg-gray-900 shadow-lg fixed w-full top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold text-indigo-400">Portfolio</h1>
+      <div class="flex items-center space-x-8">
+        <ul class="flex space-x-8 text-gray-300">
+          <li><a href="#home" class="hover:text-indigo-400 transition">Home</a></li>
+          <li><a href="#about" class="hover:text-indigo-400 transition">About</a></li>
+          <li><a href="#projects" class="hover:text-indigo-400 transition">Projects</a></li>
+          <li><a href="#skills" class="hover:text-indigo-400 transition">Skills</a></li>
+          <li><a href="#contact" class="hover:text-indigo-400 transition">Contact</a></li>
+        </ul>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <!-- Moon icon for dark theme -->
+            <path d="M21.64 13a1 1 0 00-1.05-.14 8.05 8.05 0 01-3.37.73 8.15 8.15 0 01-8.14-8.1 8.59 8.59 0 01.6-2.89 1 1 0 00-.76-1.12A10 10 0 1019.3 13.11a1 1 0 002.34-.11z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-indigo-900">
+    <div class="container mx-auto px-6 text-center">
+      <!-- Replace the 'src' attribute below with your profile picture URL or local path (e.g., 'images/profile.jpg') -->
+      <img src="https://via.placeholder.com/150" alt="Pushpita kundu Profile Picture" class="profile-pic mx-auto">
+      <h1 class="text-5xl md:text-6xl font-bold mb-4">Welcome, I'm Pushpita Kundu</h1>
+      <p class="text-xl md:text-2xl mb-8 text-gray-300">Crafting innovative web solutions with passion and precision.</p>
+      <a href="#contact" class="bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Connect with Me</a>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 bg-gray-800">
+    <div class="container mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-10 text-indigo-400">Who I Am</h2>
+      <p class="text-lg text-gray-300 max-w-3xl mx-auto text-center">
+        A dedicated web developer specializing in creating dynamic, responsive websites and applications. My focus is on delivering clean code and exceptional user experiences.
+      </p>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="py-24 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-10 text-indigo-400">My Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="project-card">
+          <!-- Replace the 'src' attribute below with your project image URL or local path (e.g., 'images/load-forecasting.jpg') -->
+          <img src="https://images.unsplash.com/photo-1506399558188-acca6f8cbf41" alt="Load Forecasting Project" class="project-image" onerror="this.src='https://via.placeholder.com/600x400'">
+          <div class="project-content">
+            <h3 class="text-xl font-semibold mb-2 text-indigo-300">Phising detection</h3>
+            <p class="text-gray-400 mb-4">A machine learning model to predict sensitive information .</p>
+            <!-- Replace the 'href' attribute below with your GitHub repository URL for Load Forecasting (e.g., 'https://github.com/your-username/load-forecasting') -->
+            <a href="https://github.com/username/load-forecasting" class="text-indigo-400 hover:text-indigo-300 transition" target="_blank" rel="noopener noreferrer">Explore</a>
+          </div>
+        </div>
+        <div class="project-card">
+          <!-- Replace the 'src' attribute below with your project image URL or local path (e.g., 'images/stock-market.jpg') -->
+          <img src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f" alt="Stock Market Prediction Project" class="project-image" onerror="this.src='https://via.placeholder.com/600x400'">
+          <div class="project-content">
+            <h3 class="text-xl font-semibold mb-2 text-indigo-300">tic tac toe</h3>
+            <p class="text-gray-400 mb-4">An online gaming platform.</p>
+            <!-- Replace the 'href' attribute below with your GitHub repository URL for Stock Market Prediction (e.g., 'https://github.com/your-username/stock-market-prediction') -->
+            <a href="https://github.com/username/stock-market-prediction" class="text-indigo-400 hover:text-indigo-300 transition" target="_blank" rel="noopener noreferrer">Explore</a>
+          </div>
+        </div>
+        <div class="project-card">
+          <!-- Replace the 'src' attribute below with your project image URL or local path (e.g., 'images/amazon-clone.jpg') -->
+          <img src="https://images.unsplash.com/photo-1661956602116-aa6865609028" alt="Amazon Clone Project" class="project-image" onerror="this.src='https://via.placeholder.com/600x400'">
+          <div class="project-content">
+            <h3 class="text-xl font-semibold mb-2 text-indigo-300">landing page</h3>
+            <p class="text-gray-400 mb-4">A full-stack e-commerce platform mimicking cosmetic features.</p>
+            <!-- Replace the 'href' attribute below with your GitHub repository URL for Amazon Clone (e.g., 'https://github.com/your-username/amazon-clone') -->
+            <a href="https://github.com/username/amazon-clone" class="text-indigo-400 hover:text-indigo-300 transition" target="_blank" rel="noopener noreferrer">Explore</a>
+          </div>
+        </div>
+        <div class="project-card">
+          <!-- Replace the 'src' attribute below with your project image URL or local path (e.g., 'images/smart-energy-meter.jpg') -->
+          <img src="https://images.unsplash.com/photo-1496247749665-49cf5b1022e9" alt="Smart Energy Meter Project" class="project-image" onerror="this.src='https://via.placeholder.com/600x400'">
+          <div class="project-content">
+            <h3 class="text-xl font-semibold mb-2 text-indigo-300">weather app</h3>
+            <p class="text-gray-400 mb-4">An app to give weather real time data.</p>
+            <!-- Replace the 'href' attribute below with your GitHub repository URL for Smart Energy Meter (e.g., 'https://github.com/your-username/smart-energy-meter') -->
+            <a href="https://github.com/username/smart-energy-meter" class="text-indigo-400 hover:text-indigo-300 transition" target="_blank" rel="noopener noreferrer">Explore</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills" class="py-24 bg-gray-800">
+    <div class="container mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-10 text-indigo-400">My Expertise</h2>
+      <div class="flex flex-wrap justify-center gap-6">
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">HTML5</span>
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">CSS3</span>
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">JavaScript</span>
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">React</span>
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">Node.js</span>
+        <span class="bg-indigo-900 text-indigo-300 px-6 py-3 rounded-full text-lg">Tailwind</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-24 bg-gray-900">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-10 text-indigo-400">Let's Talk</h2>
+      <p class="text-lg text-gray-300 mb-8">Drop me a message or connect via social media!</p>
+      <a href="mailto:priyanjana.paul@example.com" class="bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition">Send Email</a>
+    </div>
+  </section>
+
+  <!-- Chat Bubble -->
+  <div class="chat-bubble" id="chatBubble" aria-label="Open chat window">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+    </svg>
+  </div>
+
+  <!-- Chat Overlay -->
+  <div class="chat-overlay" id="chatOverlay">
+    <div class="chat-container">
+      <div class="chat-header">
+        <!-- Replace the 'src' attribute below with your profile picture URL or local path (e.g., 'images/profile.jpg') -->
+        <img src="https://via.placeholder.com/150" alt="Priyanjana Paul Profile Picture">
+        <span>Chat with Priyanjana</span>
+        <button id="closeChat">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <div class="chat-message bot">Hi! Ask me about my projects, skills, or anything else!</div>
+      </div>
+      <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+        <button id="sendMessage">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+
+    // Check for saved theme preference
+    if (localStorage.getItem('theme') === 'light') {
+      body.classList.add('light-theme');
+      themeIcon.innerHTML = '<path d="M12 3v2m0 14v2m9-9h-2m-14 0H3m15.36-6.36l-1.42 1.42M6.64 18.36l-1.42-1.42m12.72 0l-1.42-1.42M6.64 5.64l-1.42 1.42M12 8a4 4 0 100 8 4 4 0 000-8z"/>';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-theme');
+      if (body.classList.contains('light-theme')) {
+        // Sun icon for light theme
+        themeIcon.innerHTML = '<path d="M12 3v2m0 14v2m9-9h-2m-14 0H3m15.36-6.36l-1.42 1.42M6.64 18.36l-1.42-1.42m12.72 0l-1.42-1.42M6.64 5.64l-1.42 1.42M12 8a4 4 0 100 8 4 4 0 000-8z"/>';
+        localStorage.setItem('theme', 'light');
+      } else {
+        // Moon icon for dark theme
+        themeIcon.innerHTML = '<path d="M21.64 13a1 1 0 00-1.05-.14 8.05 8.05 0 01-3.37.73 8.15 8.15 0 01-8.14-8.1 8.59 8.59 0 01.6-2.89 1 1 0 00-.76-1.12A10 10 0 1019.3 13.11a1 1 0 002.34-.11z"/>';
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // Chat bubble and overlay functionality
+    const chatBubble = document.getElementById('chatBubble');
+    const chatOverlay = document.getElementById('chatOverlay');
+    const closeChat = document.getElementById('closeChat');
+    const chatInput = document.getElementById('chatInput');
+    const sendMessage = document.getElementById('sendMessage');
+    const chatBody = document.getElementById('chatBody');
+
+    // Toggle chat overlay
+    chatBubble.addEventListener('click', () => {
+      chatOverlay.classList.toggle('active');
+      if (chatOverlay.classList.contains('active')) {
+        chatInput.focus();
+      }
+    });
+
+    closeChat.addEventListener('click', () => {
+      chatOverlay.classList.remove('active');
+    });
+
+    // Handle message sending
+    function sendChatMessage() {
+      if (chatInput.value.trim()) {
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-message user';
+        userMsg.textContent = chatInput.value;
+        chatBody.appendChild(userMsg);
+
+        const botMsg = document.createElement('div');
+        botMsg.className = 'chat-message bot';
+        const input = chatInput.value.toLowerCase();
+        const responses = {
+          project: 'I’ve built projects like a React SPA with Firebase and an Express API. Want to dive into one?',
+          skill: 'I specialize in HTML, CSS, JavaScript, React, Node.js, and Tailwind. Which skill interests you?',
+          contact: 'You can reach me via email at priyanjana.paul@example.com or through the contact section!',
+          about: 'I’m a passionate web developer focused on clean code and great UX. What else do you want to know?',
+          default: 'Great question! I’m a web developer with a knack for responsive UIs. What’s next?'
+        };
+        botMsg.textContent = Object.keys(responses).reduce((response, key) => 
+          input.includes(key) ? responses[key] : response, responses.default
+        );
+        setTimeout(() => {
+          chatBody.appendChild(botMsg);
+          chatBody.scrollTop = chatBody.scrollHeight;
+        }, 500); // Simulate AI response delay
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+        chatInput.value = '';
+      }
+    }
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendChatMessage();
+      }
+    });
+
+    sendMessage.addEventListener('click', sendChatMessage);
+
+    // Close overlay on clicking outside chat container
+    chatOverlay.addEventListener('click', (e) => {
+      if (e.target === chatOverlay) {
+        chatOverlay.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
